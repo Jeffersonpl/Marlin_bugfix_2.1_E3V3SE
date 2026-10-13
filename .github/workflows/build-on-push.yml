@@ -29,6 +29,7 @@ jobs:
 
       - name: Publish firmware to the firmware-builds branch
         run: |
+          set +e
           run() { out=$("$@" 2>&1); rc=$?; echo "$out"; if [ $rc -ne 0 ]; then echo "::error::step '$*' failed ($rc): $(echo "$out" | tail -5 | tr '\n' ' ')"; exit $rc; fi; }
           BIN=$(ls .pio/build/STM32F103RET6_creality/*.bin | head -1)
           echo "::notice::built $BIN size $(stat -c %s "$BIN")"
