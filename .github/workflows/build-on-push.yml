@@ -29,16 +29,17 @@ jobs:
 
       - name: Publish firmware to the firmware-builds branch
         run: |
-          set -e
-          BIN=$(ls .pio/build/STM32F103RET6_creality/firmware*.bin | head -1)
+          run() { out=$("$@" 2>&1); rc=$?; echo "$out"; if [ $rc -ne 0 ]; then echo "::error::step '$*' failed ($rc): $(echo "$out" | tail -5 | tr '\n' ' ')"; exit $rc; fi; }
+          BIN=$(ls .pio/build/STM32F103RET6_creality/*.bin | head -1)
+          echo "::notice::built $BIN size $(stat -c %s "$BIN")"
           SHORT=$(git rev-parse --short HEAD)
           mkdir -p /tmp/out
           cp "$BIN" "/tmp/out/k4n_${SHORT}.bin"
-          sha256sum /tmp/out/*.bin > /tmp/out/SHA256SUMS.txt
-          git config user.name "github-actions"
-          git config user.email "github-actions@users.noreply.github.com"
-          git switch --orphan fw-tmp
+          (cd /tmp/out && sha256sum *.bin > SHA256SUMS.txt)
+          run git config user.name "github-actions"
+          run git config user.email "github-actions@users.noreply.github.com"
+          run git switch --orphan fw-tmp
           cp /tmp/out/* .
-          git add k4n_*.bin SHA256SUMS.txt
-          git commit -m "C13 firmware build from ${SHORT}"
-          git push -f origin HEAD:firmware-builds
+          run git add -f "k4n_${SHORT}.bin" SHA256SUMS.txt
+          run git commit -m "C13 firmware build from ${SHORT}"
+          run git push -f origin HEAD:refs/heads/firmware-builds
