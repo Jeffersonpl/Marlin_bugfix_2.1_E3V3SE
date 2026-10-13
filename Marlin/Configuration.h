@@ -139,7 +139,7 @@
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
 //#define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
 
-#define DWIN_RENDER_THUMBNAIL  // Enable the Rendering of the Thumbnail Image from Gcode Script for E3V3SE
+//#define DWIN_RENDER_THUMBNAIL  // Enable the Rendering of the Thumbnail Image from Gcode Script for E3V3SE
 
 
 // |                |
@@ -2090,7 +2090,7 @@
  */
 #define FILAMENT_RUNOUT_SENSOR
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
+  #define FIL_RUNOUT_ENABLED_DEFAULT false // Enable the sensor on startup. Override with M412 followed by M500.
   #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
 
   #define FIL_RUNOUT_STATE     HIGH        // Pin state indicating that filament is NOT present.

@@ -1,0 +1,44 @@
+name: Build C13 firmware on push
+
+on:
+  push:
+    branches:
+      - krasnaya4-noIS
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Compile firmware
+        run: pio run -e STM32F103RET6_creality
+
+      - name: Publish firmware to the firmware-builds branch
+        run: |
+          set -e
+          BIN=$(ls .pio/build/STM32F103RET6_creality/firmware*.bin | head -1)
+          SHORT=$(git rev-parse --short HEAD)
+          mkdir -p /tmp/out
+          cp "$BIN" "/tmp/out/k4n_${SHORT}.bin"
+          sha256sum /tmp/out/*.bin > /tmp/out/SHA256SUMS.txt
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git switch --orphan fw-tmp
+          cp /tmp/out/* .
+          git add k4n_*.bin SHA256SUMS.txt
+          git commit -m "C13 firmware build from ${SHORT}"
+          git push -f origin HEAD:firmware-builds
